@@ -1,129 +1,175 @@
-# React + TypeScript + Vite
+Admin Dashboard – Scalable React Architecture
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, production-ready admin dashboard built with React 19 + TypeScript, focused on scalable state management, modular feature architecture, and performance-aware design patterns.
 
-Currently, two official plugins are available:
+This project demonstrates real-world admin use cases including product management, user management, notifications, and dynamic data grids — structured using feature-based organization and modern data-fetching patterns.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The architecture emphasizes:
 
-## React Compiler
+Separation of server and client state
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+Testable state management (Zustand)
 
-Note: This will impact Vite dev & build performances.
+Reusable data-fetching abstractions
 
-## Expanding the ESLint configuration
+Modular feature boundaries
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Performance-conscious UI rendering
 
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
+🔹 ✨ Features
+📦 Product Management
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Dynamic data grid (MUI X DataGrid)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
+Row selection & highlight logic
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Dialog-based editing workflows
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
+Flash row animation logic
 
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
+Centralized store for UI interactions
 
-Done! Here is your **Project Progress & Architecture Summary**. You can save this in a `NOTES.md` file in your project or paste it into a new chat session to give me (or any other AI) an instant "brain upload" of your current work.
+Undo-ready notification structure
 
----
+👥 User Management
 
-## 🏗️ Project: Product Management Dashboard
+Data transformation layer for API responses
 
-**Current Stack:** React, TypeScript, MUI (Material UI), TanStack Query (v5), and Zustand.
+Configurable DataGrid columns
 
-### 1. Folder Structure (Feature-Based)
+Loading & refresh states
 
-We are following a scalable architecture where business logic is grouped by feature.
+Error boundary handling
 
-- `src/feature/products/`: Contains the `ProductTable`, `useProductAction` (mutations), and `useProductData` (queries).
-- `src/components/layout/`: Holds the "Shell" (Sidebar, Header).
-- `src/store/`: Centralized state logic using Zustand.
+Skeleton loading UI
 
----
+🔔 Notification System
 
-### 2. State Management Strategy
+Undo notification component
 
-We have moved away from prop-drilling and local `useState` for global concerns:
+Countdown timer logic
 
-- **Server State (TanStack Query):** Handles fetching, caching, and mutating product data.
-- **Client State (Zustand):** Handles UI interactions like sidebars and notifications.
+Snackbar integration
 
-### 3. The Unified UI Store (`useDrawerNotificationStore.ts`)
+Isolated notification store
 
-A centralized store for the application "Shell."
+🎨 UI & Theming
 
-- **Sidebar Slice:** Manages `isDrawerOpen` and includes a curried `toggleDrawer` function to handle MUI's specific `KeyboardEvent` requirements.
-- **Notification Slice:** Manages a global `notification` object.
-- **Key Action:** `notify(message, severity)` – Triggers a Snackbar and automatically handles the `setTimeout` cleanup inside the store logic.
+Custom theme context
 
----
+Dark/light mode toggle
 
-### 4. Technical Wins & Patterns Used
+Reusable layout components
 
-- **Stable Selectors:** Using `useUiStore(state => state.value)` to prevent unnecessary re-renders of the DataGrid.
-- **Stable Columns:** Defining `DataGrid` columns with `useMemo` so they aren't recreated on every render.
-- **Curried Event Handlers:** Moving complex MUI event logic into the store to keep components purely visual.
-- **Atomic Updates:** Using the functional update `set((state) => ({ ... }))` only for nested objects (`notification`) while letting Zustand merge top-level keys.
+Responsive design
 
----
+⚡ Data Fetching & Caching
 
-### 5. Pending "Homework" & Next Steps
+TanStack React Query
 
-1. **Notification Integration:** Call the `notify` action from the `onSuccess` callback in your Product mutations.
-2. **Global UI Components:** Create a single `<NotificationSnackbar />` in your `App.tsx` or `Layout.tsx` that listens to the store, so notifications can be triggered from anywhere.
-3. **Future Feature:** Integrate **Zundo** for "Undo/Redo" functionality on bulk actions (like accidental deletes).
+Query wrappers for abstraction
 
----
+Loading / fetching / error state separation
 
-**Whenever you're ready to start the next session, just say "Let's pick up from the Project Summary," and we can dive straight into the code!**
+Refetch and background refresh handling
+
+🧠 State Management
+
+Zustand for UI and domain state
+
+Structured action-based store pattern
+
+Timed side-effect handling (flash row)
+
+Reset and selection logic
+
+🧪 Testing (In Progress)
+
+Unit testing with Vitest
+
+Store testing with fake timers
+
+Hook testing strategy
+
+Co-located test files
+
+🔹 🏗 Architecture Highlights
+
+Feature-based folder structure
+
+Separation of common vs feature components
+
+Dedicated store slices
+
+Reusable query wrapper abstraction
+
+Clear boundary between server state and UI state
+
+Environment configuration via Vite
+
+🔹 🛠 Tech Stack
+Core
+
+React 19
+
+TypeScript
+
+Vite
+
+State Management
+
+Zustand
+
+Data Fetching
+
+TanStack React Query
+
+UI
+
+MUI (Material UI)
+
+MUI X DataGrid
+
+TailwindCSS
+
+Forms
+
+React Hook Form
+
+Charts
+
+Recharts
+
+Testing
+
+Vitest
+
+Testing Library
+
+🔹 🎯 Project Goals
+
+This project serves as a foundation for:
+
+Exploring scalable state management patterns
+
+Comparing Zustand vs Redux architecture
+
+Implementing enterprise-style workflows
+
+Preparing for migration to Next.js App Router
+
+🔹 🧠 Future Improvements (Optional Section)
+
+You can add this to show roadmap thinking:
+
+Redux Toolkit integration (RTK Query + entity adapter)
+
+Bulk operations workflow
+
+Role-based permissions
+
+Optimistic updates with undo
+
+Audit logging
+
+Migration to Next.js
