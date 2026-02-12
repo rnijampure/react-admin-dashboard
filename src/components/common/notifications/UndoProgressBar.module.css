@@ -1,0 +1,27 @@
+.undo-progress-container {
+  width: 100%;
+  height: 4px;
+  background-color: #e0e0e0; /* light gray background */
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 8px; /* space between progress and message */
+  animation-fill-mode: forwards; /* Keeps the bar at 0% when done */
+}
+
+.undo-progress-bar {
+  height: 100%;
+  width: 100%;
+  background-color: #1976d2; /* MUI primary blue */
+  animation-name: shrink;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes shrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}

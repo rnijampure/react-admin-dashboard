@@ -1,0 +1,79 @@
+{
+  "metric": "products_sold",
+  "period": "current_week",
+  "comparisonPeriod": "previous_week",
+  "total": {
+    "currentWeek": 400,
+    "previousWeek": 340,
+    "changePct": 17.6,
+    "trend": "up"
+  },
+  "breakdown": {
+    "byCategory": [
+      {
+        "category": "Electronics",
+        "currentWeek": 140,
+        "previousWeek": 110,
+        "changePct": 27.3
+      },
+      {
+        "category": "Clothing",
+        "currentWeek": 120,
+        "previousWeek": 105,
+        "changePct": 14.3
+      },
+      {
+        "category": "Home & Kitchen",
+        "currentWeek": 90,
+        "previousWeek": 80,
+        "changePct": 12.5
+      },
+      {
+        "category": "Beauty",
+        "currentWeek": 50,
+        "previousWeek": 45,
+        "changePct": 11.1
+      }
+    ],
+    "byUserType": [
+      {
+        "userType": "New",
+        "currentWeek": 150,
+        "previousWeek": 120,
+        "changePct": 25
+      },
+      {
+        "userType": "Returning",
+        "currentWeek": 250,
+        "previousWeek": 220,
+        "changePct": 13.6
+      }
+    ],
+    "byRegion": [
+      {
+        "region": "North America",
+        "currentWeek": 180,
+        "previousWeek": 150,
+        "changePct": 20
+      },
+      {
+        "region": "Europe",
+        "currentWeek": 120,
+        "previousWeek": 105,
+        "changePct": 14.3
+      },
+      {
+        "region": "Asia-Pacific",
+        "currentWeek": 70,
+        "previousWeek": 60,
+        "changePct": 16.7
+      },
+      {
+        "region": "Rest of World",
+        "currentWeek": 30,
+        "previousWeek": 25,
+        "changePct": 20
+      }
+    ]
+  }
+}
