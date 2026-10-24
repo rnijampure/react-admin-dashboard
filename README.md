@@ -2,6 +2,8 @@
 
 A modern, production-ready **admin dashboard** built with **React 19 + TypeScript**, designed with **scalable state management**, **modular feature architecture**, and **performance-aware design patterns**.
 
+FULL DOCUMENTATION AVAILABLE AT -https://rnijampure.github.io/react-admin-dashboard/
+
 This project demonstrates real-world admin use cases including **product management**, **user management**, **notifications**, and **dynamic data grids** — structured using feature-based organization and modern data-fetching patterns. Currently only products table edit feature is developed
 
 The architecture emphasizes:
