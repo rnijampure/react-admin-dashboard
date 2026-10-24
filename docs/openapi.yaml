@@ -1,0 +1,358 @@
+openapi: 3.0.3
+info:
+  title: React Admin Dashboard API (expected contract)
+  version: 0.1.0
+  description: |
+    The HTTP API that the React Admin Dashboard front end expects.
+
+    **How this file was written.** It is derived from the dashboard's source code, not generated from a running server. It describes what the front end sends and reads. Where the front end tolerates more than one form of a field, the schema says so.
+
+    **Authentication.** None. The front end sends no credentials.
+
+    **Errors.** The front end treats any status outside 200-299 as a failure and does not read error bodies.
+  contact:
+    name: Rohini Nijampure
+    url: https://github.com/rnijampure/react-admin-dashboard
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+tags:
+  - name: Products
+    description: Product list, single product and edits
+  - name: Live updates
+    description: Server-sent events for products
+  - name: Customers
+    description: Customer list
+paths:
+  /api/products:
+    get:
+      tags: [Products]
+      operationId: listProducts
+      summary: List products
+      description: |
+        Returns all products. Used by the Weekly Summary cards and the alerts panel. The front end copies `_id` into `id` for every product it loads.
+      responses:
+        "200":
+          description: An array of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+              example:
+                - _id: "6970c12c0576869a149e11fe"
+                  name: Wireless Headphones
+                  category: Electronics
+                  price: 512
+                  stock: 25
+                  status: active
+                  unitsSold: 13
+                  revenue: 781
+                  unitsSoldChangePct: 0
+                  revenueChangePct: 0
+                  userType: All
+                  region: All
+        "default":
+          $ref: "#/components/responses/Failure"
+  /products:
+    get:
+      tags: [Products]
+      operationId: listProductsForTable
+      summary: List products (product table address)
+      description: |
+        The product table builds its address from `http://localhost:3000/` plus `/products`, so it actually requests `//products` (double slash). It expects the same array as `GET /api/products` and stores it under the same cache key. Make both addresses return the same list.
+      responses:
+        "200":
+          description: An array of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        "default":
+          $ref: "#/components/responses/Failure"
+  /api/products/add/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ProductId"
+    get:
+      tags: [Products]
+      operationId: getProduct
+      summary: Get one product
+      description: Called when the edit dialog opens for a row.
+      responses:
+        "200":
+          description: The product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "default":
+          $ref: "#/components/responses/Failure"
+    patch:
+      tags: [Products]
+      operationId: updateProduct
+      summary: Update one product
+      description: |
+        Called after the 10-second undo window ends. The edit form always sends `category` as an array, even for a single category.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductUpdate"
+            example:
+              id: "6970c12c0576869a149e11fe"
+              name: Wireless Headphones
+              category: [Electronics]
+              price: 512
+              stock: 25
+              description: Over-ear, Bluetooth
+      responses:
+        "200":
+          description: |
+            The updated product. The front end reads `_id` or `id`, `name`, `category`, `stock`, `price` and `status`. A `status` other than `active` or `inactive` is treated as `inactive`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "default":
+          $ref: "#/components/responses/Failure"
+  /api/products/bulk:
+    patch:
+      tags: [Products]
+      operationId: bulkUpdateProducts
+      summary: Update several products
+      description: |
+        Called by **Save All Changes** in the multiple-product edit form. Only rows the user changed are sent, and each item carries only editable fields (`_id`, `createdAt` and `updatedAt` are removed).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BulkUpdateRequest"
+            example:
+              updates:
+                - id: "6970c12c0576869a149e11fe"
+                  name: Wireless Headphones
+                  price: 499
+                - id: "697444e278bc2ef120f5a02a"
+                  stock: 40
+      responses:
+        "200":
+          description: |
+            Result of the bulk update. The front end reads only `failed`; if it is not empty, the failed items are written to the browser console.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BulkUpdateResponse"
+              example:
+                success: []
+                failed: []
+        "default":
+          $ref: "#/components/responses/Failure"
+  /api/products/stream:
+    get:
+      tags: [Live updates]
+      operationId: streamProducts
+      summary: Stream product events
+      description: |
+        Opens a server-sent events (SSE) stream. The front end listens for two named events and expects each event's `data` to be a JSON product.
+
+        | Event | Front-end behaviour |
+        |---|---|
+        | `productAdded` | Adds the product if no product with the same id exists. Reads `_id` or `id`, `name`, `category`, `stock`, `userType`, `region`. |
+        | `productUpdated` | Replaces the product whose **`id`** matches. Send `id`, not `_id`. |
+
+        If the connection reports an error, the front end closes it and does not reconnect.
+      responses:
+        "200":
+          description: An event stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+              example: |
+                event: productAdded
+                data: {"_id":"697444e278bc2ef120f5a02a","name":"CineBar 24W Portable Wireless Soundbar","category":"Electronics","price":512,"stock":0,"status":"active","createdAt":"2026-01-24T04:04:50.341Z","updatedAt":"2026-01-24T04:04:50.341Z","__v":0}
+  /api/users:
+    get:
+      tags: [Customers]
+      operationId: listCustomers
+      summary: List customers
+      description: |
+        Used by the customers table, summary and alerts. The customers table joins the values of `address` into one comma-separated string, so `address` must be an object; a missing `address` causes an error.
+      responses:
+        "200":
+          description: An array of customers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Customer"
+              example:
+                - _id: "65f1c0ab12cd34ef56789012"
+                  name: Asha Rao
+                  email: asha@example.com
+                  phone: 9876543210
+                  address:
+                    street: 12 MG Road
+                    city: Bengaluru
+                    pin: "560001"
+                  region: Asia-Pacific
+                  preferredPaymentMethod: UPI
+                  totalOrders: 12
+                  totalRevenue: 8450
+                  status: active
+        "default":
+          $ref: "#/components/responses/Failure"
+components:
+  parameters:
+    ProductId:
+      name: id
+      in: path
+      required: true
+      description: The product's identifier
+      schema:
+        type: string
+  responses:
+    Failure:
+      description: Any status outside 200-299. The front end shows a generic failure message and does not read the body.
+  schemas:
+    Product:
+      type: object
+      description: |
+        A product. Both `_id` and `id` are accepted; the front end copies `_id` into `id` on load. Which fields are present depends on the backend (confirm). The table column is named `stockLevel` while the edit forms use `stock`.
+      properties:
+        _id:
+          type: string
+          example: "6970c12c0576869a149e11fe"
+        id:
+          type: string
+        name:
+          type: string
+        category:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+          description: A string, or an array of strings (the edit form sends an array).
+        price:
+          type: number
+        stock:
+          type: integer
+        status:
+          type: string
+          enum: [active, inactive, pending]
+          description: Other values are treated as `inactive`.
+        description:
+          type: string
+        unitsSold:
+          type: integer
+        revenue:
+          type: number
+        unitsSoldChangePct:
+          type: number
+        revenueChangePct:
+          type: number
+        userType:
+          type: string
+        region:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ProductUpdate:
+      type: object
+      description: The fields the edit form sends for one product.
+      required: [name, category, price, stock]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        category:
+          type: array
+          items:
+            type: string
+        price:
+          type: number
+        stock:
+          type: integer
+        description:
+          type: string
+    BulkUpdateRequest:
+      type: object
+      required: [updates]
+      properties:
+        updates:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/BulkUpdateItem"
+    BulkUpdateItem:
+      type: object
+      description: One changed product. Only edited fields are included.
+      required: [id]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        category:
+          type: array
+          items:
+            type: string
+        price:
+          type: number
+        stock:
+          type: integer
+        description:
+          type: string
+    BulkUpdateResponse:
+      type: object
+      properties:
+        success:
+          type: array
+          items:
+            type: object
+          description: Not read by the front end (confirm the shape).
+        failed:
+          type: array
+          items:
+            type: object
+          description: Entries that could not be updated. The shape of each entry is not read (confirm).
+    Customer:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: number
+        address:
+          type: object
+          additionalProperties:
+            type: string
+          description: The values are joined into one comma-separated string for display.
+        region:
+          type: string
+        preferredPaymentMethod:
+          type: string
+          enum: [Card, UPI, PayPal, Credit Card]
+        totalOrders:
+          type: integer
+        totalRevenue:
+          type: number
+        status:
+          type: string
+          enum: [active, inactive, pending, suspended, banned, deleted]

@@ -1,0 +1,36 @@
+site_name: React Admin Dashboard Documentation
+site_description: Developer documentation for the React Admin Dashboard (React 19, TypeScript, React Query, Zustand).
+site_author: Rohini Nijampure
+site_url: https://rnijampure.github.io/react-admin-dashboard/
+repo_url: https://github.com/rnijampure/react-admin-dashboard
+repo_name: rnijampure/react-admin-dashboard
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - toc.follow
+    - search.suggest
+    - content.code.copy
+
+nav:
+  - Overview: index.md
+  - Getting started: getting-started.md
+  - Architecture: architecture.md
+  - State management: state-management.md
+  - API reference: api-reference.md
+  - API explorer: api-explorer.md
+
+markdown_extensions:
+  - admonition
+  - tables
+  - attr_list
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
